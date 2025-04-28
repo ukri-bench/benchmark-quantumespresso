@@ -147,7 +147,7 @@ class QEspressoPWcheckBasic(QEspressoPWCheckBase):
     """
     The basic 2 atom Si2 test. This does not scale up at all, but is useful for testing"
     """
-    tags = {'basic','sciapp', 'chemistry'}
+    tags = {'quick','sciapp', 'chemistry'}
     descr = 'QuantumESPRESSO pw.x benchmark'
     inputfile = "Si.scf.in"
     inputdir = "Si-basic"
@@ -159,7 +159,7 @@ class QEspressoPWcheckZrO(QEspressoPWCheckBase):
     """
     Big ZrO test
     """
-    tags = {'basic','sciapp', 'chemistry'}
+    tags = {'sciapp', 'chemistry'}
     descr = 'QuantumESPRESSO pw.x benchmark'
     inputfile = "ZrO2.in"
     inputdir = "ZrO2"
