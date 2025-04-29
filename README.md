@@ -11,19 +11,27 @@ This is a repo for the living benchmarks quantum espresso tests. These tests sho
 
 ### Config
 A reframe config should be generated for the machine in question and then set using
+```
     export RFM_CONFIG_FILES=<path to config file>
+```
 An example for the existing UK HPC machines is given in reframe_config.example.py
 
 You may also need to tell reframe to use login shells to correctly find the spack executable
+```
     export RFM_USE_LOGIN_SHELL="true"
+```
 
 ### Building and running the tests
 
 The simple test can be run locally using
+```
     reframe -c ./qe.py -r -t quick
+```
 
 The full tests can be run using
+```
     reframe -c ./qe.py -r
+```
 
 The ZrO2 case can take a large amount of time to run.
 
