@@ -23,17 +23,17 @@ jobs:
       matrix:
         backend:
           [
-            { device: cpu, spack_opt: "%gcc ^openblas ^fftw"},
+            { device: cpu, base-image: ubuntu:24.04, spack-opt: "+mpi%gcc ^openblas ^fftw"},
+            { device: cuda, base-image: nvidia/cuda:12.9.1-base-ubuntu24.04, spack-opt: "+mpi+cuda+mpigpu%nvhpc" },
             # { device: rocm, spack_opt: "++rocm" },
-            # { device: cuda, spack_opt: "++cuda" },
           ]
     uses: ./.github/workflows/build.yml  
     with:
-      base-image: ubuntu-24.04
+      base-image: ${{ matrix.backend.base-image }}
       spack-buildcache: oci://ghcr.io/ukri-bench/spack-buildcache-qe
       build-device: ${{ matrix.backend.device }}
-      spack-opt: ${{ matrix.backend.spack_opt }}
-      
+      spack-opt: ${{ matrix.backend.spack-opt }}
+    secrets: inherit
     permissions:
       packages: write
 

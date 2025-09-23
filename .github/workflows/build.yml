@@ -26,18 +26,18 @@ env:
 
 jobs:
   build:
-    runs-on: ${{ inputs.base-image }}
+    runs-on: ubuntu-24.04
     permissions:
       packages: write
 
     steps:
       - uses: actions/checkout@v5
 
-      - if: ${{ inputs.build-device != 'cpu' }}
-        name: Install GPU compiler/driver
-        uses: ukri-bench/spack-configs/actions/install-gpu-driver@main
-        with:
-          runtime: ${{ inputs.build-device }}
+      #- if: ${{ inputs.build-device != 'cpu' }}
+      #  name: Install GPU compiler/driver
+      #  uses: ukri-bench/spack-configs/actions/install-gpu-driver@main
+      #  with:
+      #    runtime: ${{ inputs.build-device }}
 
       - name: Set up Spack
         uses: spack/setup-spack@v2
@@ -46,20 +46,16 @@ jobs:
           color: true      # Force color output (SPACK_COLOR=always)
           path: spack-src  # Where to clone Spack
 
-      - if: ${{ inputs.build-device != 'rocm' }}
-        name: Get Spack config
+      - name: Get Spack config
         run: |
           wget -O spack.yml https://raw.githubusercontent.com/ukri-bench/spack-configs/refs/heads/main/configs/gh-actions/spack.yml
-      - if: ${{ inputs.build-device == 'rocm' }}
-        name: Get Spack config
-        run: |
-          wget -O spack.yml https://raw.githubusercontent.com/ukri-bench/spack-configs/refs/heads/main/configs/gh-actions/spack-rocm.yml
 
       - name: Add ukri-bench Spack repository and create environment
         shell: spack-bash {0}
         run: |
           spack repo add --name bench_pkgs https://github.com/ukri-bench/spack-packages.git ./bench_pkgs
-          spack mirror add --unsigned --type binary --oci-username-variable GITHUB_USER --oci-password-variable GITHUB_TOKEN local-buildcache ${{ inputs.spack-buildcache }}
+          spack mirror add --autopush --unsigned --type binary --oci-username-variable GITHUB_USER  \
+            --oci-password-variable GITHUB_TOKEN local-buildcache ${{ inputs.spack-buildcache }}
           spack env create . spack.yml
 
       - if: ${{ inputs.build-device == 'rocm' }}
@@ -70,21 +66,22 @@ jobs:
           spack -e . config get packages
 
       - if: ${{ inputs.build-device == 'cuda' }}
-        name: Find compilers (CUDA)
+        name: Install nvhpc
+        shell: spack-bash {0}
+        run: spack -e . install --add nvhpc+blas+lapack+mpi default_cuda=12.9
+
+      - name: Concretize
         shell: spack-bash {0}
         run: |
-          spack -e . external find -p /usr/local/cuda --all --not-buildable
-          spack -e . config get packages
+          spack -e . add quantum-espresso${{ inputs.spack-opt }}
+          spack -e . concretize
 
-      - name: Build benchmark
+      - name: Build Quantum Espresso
+        shell: spack-bash {0}
+        run: spack -e . install -j 4
+
+      - name: Publish Executable
         shell: spack-bash {0}
         run: |
-          spack -e . add quantum-espresso ${{ inputs.spack-opt }}
-          spack -e . install -U -j 4 --use-buildcache auto
-
-      - name: Push packages and update index
-        shell: spack-bash {0}
-        run: |
-          spack -e . buildcache push --base-image ${{ inputs.base-image }} --update-index local-buildcache
-        if: ${{ !cancelled() }}
-
+          spack -e . buildcache push --base-image ${{ inputs.base-image }} \
+            --update-index --tag ${{ github.sha }}-${{ inputs.build-device }} local-buildcache
