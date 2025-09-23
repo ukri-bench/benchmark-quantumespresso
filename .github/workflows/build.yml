@@ -1,0 +1,90 @@
+name: Benchmark build and run
+
+# Builds the branch benchmark code against Spack-installed dependencies
+# for CPU and GPU versions. Runs the CPU version of the branch
+# benchmark.
+
+on:
+  workflow_call:
+    inputs:
+      base-image:
+        required: true
+        type: string
+      spack-buildcache:
+        required: true
+        type: string
+      build-device:
+        required: true
+        type: string
+      spack-opt:
+        required: true
+        type: string
+
+env:
+  GITHUB_USER: ${{ github.actor }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ${{ inputs.base-image }}
+    permissions:
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - if: ${{ inputs.build-device != 'cpu' }}
+        name: Install GPU compiler/driver
+        uses: ukri-bench/spack-configs/actions/install-gpu-driver@main
+        with:
+          runtime: ${{ inputs.build-device }}
+
+      - name: Set up Spack
+        uses: spack/setup-spack@v2
+        with:
+          ref: develop     # Spack version (examples: develop, releases/v0.23)
+          color: true      # Force color output (SPACK_COLOR=always)
+          path: spack-src  # Where to clone Spack
+
+      - if: ${{ inputs.build-device != 'rocm' }}
+        name: Get Spack config
+        run: |
+          wget -O spack.yml https://raw.githubusercontent.com/ukri-bench/spack-configs/refs/heads/main/configs/gh-actions/spack.yml
+      - if: ${{ inputs.build-device == 'rocm' }}
+        name: Get Spack config
+        run: |
+          wget -O spack.yml https://raw.githubusercontent.com/ukri-bench/spack-configs/refs/heads/main/configs/gh-actions/spack-rocm.yml
+
+      - name: Add ukri-bench Spack repository and create environment
+        shell: spack-bash {0}
+        run: |
+          spack repo add --name bench_pkgs https://github.com/ukri-bench/spack-packages.git ./bench_pkgs
+          spack mirror add --unsigned --type binary --oci-username-variable GITHUB_USER --oci-password-variable GITHUB_TOKEN local-buildcache ${{ inputs.spack-buildcache }}
+          spack env create . spack.yml
+
+      - if: ${{ inputs.build-device == 'rocm' }}
+        name: Find compilers (ROCm)
+        shell: spack-bash {0}
+        run: |
+          spack -e . compiler find
+          spack -e . config get packages
+
+      - if: ${{ inputs.build-device == 'cuda' }}
+        name: Find compilers (CUDA)
+        shell: spack-bash {0}
+        run: |
+          spack -e . external find -p /usr/local/cuda --all --not-buildable
+          spack -e . config get packages
+
+      - name: Build benchmark
+        shell: spack-bash {0}
+        run: |
+          spack -e . add quantum-espresso ${{ inputs.spack-opt }}
+          spack -e . install -U -j 4 --use-buildcache auto
+
+      - name: Push packages and update index
+        shell: spack-bash {0}
+        run: |
+          spack -e . buildcache push --base-image ${{ inputs.base-image }} --update-index local-buildcache
+        if: ${{ !cancelled() }}
+
