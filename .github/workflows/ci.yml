@@ -30,9 +30,6 @@ jobs:
     permissions:
       packages: write
 
-    #env:
-    #  dolfinx_ref: main
-    #  # bench_dolfinx_ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
     strategy:
       matrix:
         backend:
@@ -80,6 +77,7 @@ jobs:
         run: |
           spack -e . compiler find
           spack -e . config get packages
+
       - if: ${{ matrix.backend.device == 'cuda' }}
         name: Find compilers (CUDA)
         shell: spack-bash {0}
@@ -87,23 +85,46 @@ jobs:
           spack -e . external find -p /usr/local/cuda --all --not-buildable
           spack -e . config get packages
 
-      #- name: Point Spack to benchmark code
-      #  shell: spack-bash {0}
-      #  run: spack -e . develop --path . --no-clone bench-dolfinx@main
-
       - name: Build benchmark
         shell: spack-bash {0}
         run: |
           spack -e . add quantum-espresso ${{ matrix.backend.spack_opt }}
           spack -e . install -U -j 4 --use-buildcache auto
 
-#      - if: ${{ matrix.backend.device == 'cpu' }}
-#        name: Run benchmark (CPU)
-#        shell: spack-bash {0}
+      - if: ${{ matrix.backend.device == 'cpu' }}
+        name: Run benchmark (CPU)
+        shell: spack-bash {0}
+        env:
+          OMP_NUM_THREADS: 1
+        run: |
+          spack env activate .
+          cd Si-basic
+          mpirun -n 2 pw.x < Si.scf.in | tee Si.scf.out
+
+      - name: Push packages and update index
+        shell: spack-bash {0}
+        run: |
+          spack -e . buildcache push --base-image ubuntu:24.04 --update-index local-buildcache
+        if: ${{ !cancelled() }}
+
+
+
+#  run-code:
+#    name: Run benchmark (CPU)
+#    needs: build
+#    runs-on: ubuntu-latest
+#    container: ghcr.io/ukri-bench/spack-buildcache-cpu:${{ github.sha }}
+#    env:
+#      OMP_NUM_THREADS: 1
+#      OMPI_ALLOW_RUN_AS_ROOT: 1
+#      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+#    steps:
+#      - uses: actions/checkout@v4  # To get post-processing script
+#      - name: Run (CPU)
 #        run: |
-#          spack env activate .
-#          bench_dolfinx --ndofs=1000 --degree=3 --qmode=0 --nreps=1 --mat_comp --float=64 --json a.json
-#          mpirun -n 2 bench_dolfinx --ndofs=500 --degree=3 --qmode=0 --nreps=1 --mat_comp --float=64 --json b.json
+#	  cd Si-basic
+#          mpirun -n 2 pw.x < Si.scf.in | tee Si.scf.out
+#
 #
 #      - if: ${{ matrix.backend.device == 'cpu' }}
 #        name: Post-process
@@ -114,9 +135,3 @@ jobs:
 #          python src/test_output.py a.json
 #          python src/test_output.py b.json
 #
-      - name: Push packages and update index
-        shell: spack-bash {0}
-        run: |
-          spack -e . buildcache push --only dependencies --with-build-dependencies \
-            --base-image ubuntu:24.04 --update-index local-buildcache
-        if: ${{ !cancelled() }}
