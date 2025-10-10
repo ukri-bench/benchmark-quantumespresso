@@ -24,7 +24,7 @@ jobs:
         backend:
           [
             { device: cpu, spack-opt: "+mpi%gcc ^openblas ^fftw"},
-            # { device: cuda, container-image: kitware/nvidia-nvhpc:24.9-devel-cuda_multi-ubuntu24.04, spack-opt: "+mpi+cuda+mpigpu%nvhpc" },
+            { device: cuda, container-image: nvcr.io/nvidia/nvhpc:25.9-devel-cuda13.0-ubuntu22.04, spack-opt: "+mpi+cuda+mpigpu~scalapack%nvhpc" },
             # { device: rocm, spack_opt: "++rocm" },
           ]
     uses: ./.github/workflows/build.yml  
