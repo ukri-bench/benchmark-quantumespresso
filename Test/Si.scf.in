@@ -4,7 +4,6 @@
   pseudo_dir   = ".",
   outdir       = "./out",
   restart_mode = "from_scratch"
-  verbosity    = 'high'
 /
 &SYSTEM
   ibrav     = 2,
