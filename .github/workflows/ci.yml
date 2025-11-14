@@ -27,7 +27,7 @@ jobs:
             # { device: cuda, container-image: kitware/nvidia-nvhpc:24.9-devel-cuda_multi-ubuntu24.04, spack-opt: "+mpi+cuda+mpigpu%nvhpc" },
             # { device: rocm, spack_opt: "++rocm" },
           ]
-    uses: ./.github/workflows/build.yml  
+    uses: ./.github/workflows/build.yml
     with:
       container-image: ${{ matrix.backend.container-image }}
       spack-buildcache: oci://ghcr.io/ukri-bench/spack-buildcache-qe
@@ -36,4 +36,3 @@ jobs:
     secrets: inherit
     permissions:
       packages: write
-

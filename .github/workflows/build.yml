@@ -78,7 +78,7 @@ jobs:
         shell: spack-bash {0}
         run: |
           which mpif90
-          which nvfortran 
+          which nvfortran
           spack -e . compiler find $(dirname $(which nvfortran))
           spack -e . config get packages
 
@@ -91,6 +91,15 @@ jobs:
       - name: Build Quantum Espresso
         shell: spack-bash {0}
         run: spack -e . install -j 4
+
+      - name: Run Test(CPU)
+        shell: spack-bash {0}
+        run: |
+          spack env activate .
+          spack load quantum-espresso
+          cd Test
+          mpirun -np 2 pw.x -i Si.scf.in > Si.scf.out
+          python ../bin/extract.py Si.scf.out
 
       - name: Publish Executable
         shell: spack-bash {0}
