@@ -4,7 +4,7 @@
     nvhpc:
       externals:
       - spec: nvhpc@25.9+blas+lapack+mpi
-        prefix: /opt/nvidia/hpc_sdk/Linux_x86_64/25.9/compilers
+        prefix: /opt/nvidia/hpc_sdk
         extra_attributes:
           environment:
             prepend_path:
