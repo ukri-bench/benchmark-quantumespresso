@@ -19,7 +19,7 @@ mpirun -np <number of processors> pw.x -i <input file> > <output file>
 ../../bin/extract.py <output file>
 ```
 
-Further instructions are in the [benchmarks folder](Benchmarks/README.md)
+Further instructions are in the [benchmarks folder](benchmarks/README.md)
 
 ## Results
 At the end of the run, a set of timings will be presented for each calculation:

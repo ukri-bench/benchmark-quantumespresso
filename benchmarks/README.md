@@ -5,5 +5,10 @@ Each of the benchmark folders contains instructions on how to run it, as well as
 
 There are also reference output files (.ref) in each folder with the expected output of these calculations.
 
-
+## List of tests:
+- [ausurf](ausurf/README.md) - Gold surface
+- [cntpor](cntpor/README.md) - Carbon nanotube with porphyrins
+- [cri3](cri3/README.md) - 2d spintronics material
+- [grir33](grir33/README.md) - Graphene on an Ir slab
+- [water_scan](water_scan/README.md) - Water molecules using the SCAN functional
 
