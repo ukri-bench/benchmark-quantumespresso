@@ -1,4 +1,9 @@
 ## Full SCF of Carbon Nanotube + Porphyrins
-* 3139 bands and 2.4 X 10^6 plane waves
 
-mpirun pw.x -i cnt10por8.in  > out_73
+This is a simulation of a carbon nanotube. 
+
+The test can be run using:
+```
+mpirun pw.x -i cnt10por8.in  > cnt10por8.out
+../../bin/extract.py cnt10por8.out
+```

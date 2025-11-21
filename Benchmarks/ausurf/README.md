@@ -1,6 +1,9 @@
 ## Au surface test 
 
-* 800 bands and ~ 10^5 plane waves
-* 2 k-points parallelized over 2 pool-groups 
+This is a supercell representing an infinite 2d gold surface exposed to vacuum. 
 
+The test can be run using:
+`
 mpirun pw.x -nk 2 -i ausurf.in  > ausurf.out
+../../bin/extract.py ausurf.out
+`

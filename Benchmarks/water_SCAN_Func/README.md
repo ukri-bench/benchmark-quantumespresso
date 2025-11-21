@@ -1,8 +1,8 @@
 # 64 molecules of water clusted with SCAN functional
+This test looks at the performance of the latest SCAN functional on water molecules. Note, older versions of QE do not support this functionality. 
 
-* 256 bands and 4.5X10^6 plane waves
-* metaGGA SCAN Functional taken from libxc, in order perform the test it is necessary to compile the program 
-  linking with libxc v> 5.0 compatible only with qe version > 7.3 
-    
-
+Steps to run:
+```
 mpirun pw.x -i water_scan.in > water_scan.out
+../../bin/extract.py water_scan.out
+```

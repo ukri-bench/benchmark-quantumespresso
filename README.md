@@ -12,9 +12,14 @@ will give a basic QE built with somewhat sensible options.
 
 ## Usage
 
+Each of the folders in benchmark contains one test and these can generally be run with
 
+```
+mpirun -np <number of processors> pw.x -i <input file> > <output file>
+../../bin/extract.py <output file>
+```
 
-
+Further instructions are in the [benchmarks folder](Benchmarks/README.md)
 
 ## Results
 At the end of the run, a set of timings will be presented for each calculation:
