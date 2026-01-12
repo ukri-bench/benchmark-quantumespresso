@@ -6,6 +6,14 @@ This is calculation in two stages:
   1. Collinear spin-polarized SCF calculation 
   2. One shot non-collinear + spin-orbit total energy calculation with density of previous step. 
 
+Info             | Setting
+---              | ---
+Calc. type       | Two-stage; standard Kohn-Sham ground state (SCF) followed by a non-collinear & spin-orbit calculation
+Pseudopotentials | Ultrasoft (USP)
+XC               | LDA
+No. atoms        | 960
+k-points         | 3
+
 ## Steps to run
 
 ```
