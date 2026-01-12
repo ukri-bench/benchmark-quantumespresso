@@ -1,10 +1,46 @@
 # Living Benchmark for Quantum Espresso
 
 ## Introduction
-This is a repo for the living benchmarks quantum espresso tests. These tests should cover FFTs, MPI and linear algebra. 
+This set of benchmarks tests the performance of the core program "PWSCF" of the materials modelling suite Quantum Espresso. Quantum Espresso uses density functional theory with a plane-wave (Fourier) basis, and iteratively solves the Kohn-Sham equations with a matrix-free method.
 
-## Compilation
-The full instructions to compile Quantum Espresso are covered in the [compilation instructions](COMPILE.md), but in brief, it can be compiled easily with spack:
+Key computational kernels are 3D FFTs and dense linear algebra (matrix-matrix multiplication, inversion and diagonalisation). When run in parallel, the 3D FFTs may be implemented as 2D and/or 1D FFTs, depending on the decomposition.
+
+Parallel communication between nodes/devices uses MPI, including all-to-all communications. GPU offloading is via OpenACC.
+
+This repo is part of the UKRI Living Benchmarks project. These tests should cover FFTs, MPI and linear algebra. 
+
+## Maintainers
+
+[@pjpbyrne](https://github.com/pjpbyrne),
+[@pjh503](https://www.github.com/pjh503)
+
+## Overview
+
+### Main code/library
+
+[Quantum Espresso](https://www.quantum-espresso.org/download/software/)
+
+### Architectures
+
+CPU, GPU.
+
+### Languages and programming models
+
+Fortran, OpenACC, MPI.
+
+### Seven 'dwarfs'
+
+- [x] Dense linear algebra
+- [ ] Sparse linear algebra
+- [x] Spectral methods
+- [ ] N-body methods
+- [ ] Structured grids
+- [ ] Unstructured grids
+- [ ] Monte Carlo
+
+## Building
+
+The benchmark can be built using Spack or manually using CMake. The full instructions to compile Quantum Espresso are covered in the [compilation instructions](COMPILE.md), but in brief, it can be compiled easily with spack:
 
 `spack install quantum-espresso+openmp+mpi+scalapack`
 
