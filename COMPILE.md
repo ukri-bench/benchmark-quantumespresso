@@ -37,7 +37,7 @@ If your MPI implementation has support for CUDA-aware MPI(some versions of MPICH
 The OpenMP build is very much a work-in-progress and is not supported by spack, nor widely available. These instructions will be updated when this changes in the future. 
 
 ## Manual Compile 
-It is also possible to build QE manually and here we give some guidance towards doing so. The steps listed here are a terse version of the main instructions from the [quantum espresso installation instructions](www.quantum-espresso.org/Doc/user_guide/node7.html).  
+It is also possible to build QE manually and here we give some guidance towards doing so. The steps listed here are a terse version of the main instructions from the [quantum espresso installation instructions](https://www.quantum-espresso.org/Doc/user_guide/node7.html).  
 
 ### Prerequisites
 The following are a list of requirements to build Quantum Espresso from scratch. 
